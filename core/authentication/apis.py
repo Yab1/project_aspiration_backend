@@ -18,6 +18,8 @@ class LoginApi(APIView):
         email = serializers.EmailField()
         password = serializers.CharField()
 
+    serializer_class = InputSerializer
+
     def post(self, request):
         serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -39,6 +41,8 @@ class LoginApi(APIView):
 
 
 class LogoutApi(ApiAuthMixin, APIView):
+    serializer_class = None
+
     def get(self, request):
         logout(request)
 
@@ -46,6 +50,8 @@ class LogoutApi(ApiAuthMixin, APIView):
 
 
 class MeApi(ApiAuthMixin, APIView):
+    serializer_class = None
+
     def get(self, request):
         try:
             data = user_get_login_data(current_user=request.user)
