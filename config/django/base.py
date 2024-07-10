@@ -17,6 +17,7 @@ ALLOWED_HOSTS = ["*"]
 LOCAL_APPS = [
     "core.api.apps.ApiConfig",
     "core.authentication.apps.AuthenticationConfig",
+    "core.feedbacks.apps.FeedbacksConfig",
     "core.users.apps.UsersConfig",
 ]
 
