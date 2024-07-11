@@ -1,7 +1,7 @@
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework import status as http_status
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -66,11 +66,19 @@ class FeedbackCreateApi(APIView):
         input_serializer.is_valid(raise_exception=True)
 
         try:
-            feedback_create(current_user=current_user, **input_serializer.validated_data)
+            message = feedback_create(current_user=current_user, **input_serializer.validated_data)
 
-            return Response(status=http_status.HTTP_200_OK)
-        except ValueError as e:
-            raise ValidationError(e)
+            response_data = {"data": {"message": message}}
+
+            return Response(data=response_data, status=http_status.HTTP_200_OK)
+
+        except ValidationError as ve:
+            return Response({"error": str(ve)}, status=http_status.HTTP_400_BAD_REQUEST)
+
+        except PermissionDenied as pd:
+            return Response({"error": str(pd)}, status=http_status.HTTP_403_FORBIDDEN)
 
         except Exception as e:
-            raise ValidationError(e)
+            return Response(
+                {"error": "An unexpected error occurred."}, status=http_status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
