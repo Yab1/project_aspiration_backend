@@ -21,6 +21,7 @@ class MemberAdmin(admin.ModelAdmin):
                 "fields": (
                     "email",
                     "password",
+                    "e_signature",
                 ),
             },
         ),

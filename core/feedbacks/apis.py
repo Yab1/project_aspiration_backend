@@ -36,11 +36,12 @@ class CheckSimilarity(APIView):
 
 class FeedbackListApi(APIView):
     class OutputSerializer(serializers.Serializer):
+        id = serializers.UUIDField()
         author = inline_serializer(
             fields={"full_name": serializers.CharField()},
         )
         comment = serializers.CharField()
-        signature = serializers.URLField()
+        e_signature = serializers.URLField()
 
     def get(self, request) -> Response:
         feedbacks = Feedback.objects.all()
@@ -55,12 +56,13 @@ class FeedbackListApi(APIView):
 class FeedbackCreateApi(APIView):
     class InputSerializer(serializers.Serializer):
         comment = serializers.CharField()
-        signature = Base64ImageField()
+        e_signature = Base64ImageField()
 
     serializer_class = InputSerializer
 
     def post(self, request) -> Response:
         current_user = Member.objects.all()[0]
+        print(current_user)
         input_serializer = self.InputSerializer(data=request.data)
 
         input_serializer.is_valid(raise_exception=True)
@@ -82,3 +84,13 @@ class FeedbackCreateApi(APIView):
             return Response(
                 {"error": "An unexpected error occurred."}, status=http_status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class VerifySignatureApi(APIView):
+    def get(self, request, feedback_id) -> Response:
+        feedback_instance = Feedback.objects.get(id=feedback_id)
+
+        result = feedback_instance.verify_signature()
+        print(result)
+
+        return Response(status=http_status.HTTP_200_OK)

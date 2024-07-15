@@ -10,14 +10,13 @@ from .models import Feedback
 from .utils import compare_images
 
 
-def feedback_create(*, current_user: Member, comment: str, signature):
+def feedback_create(*, current_user: Member, comment: str, e_signature):
     try:
-        reference_signature_path = Feedback.objects.all()[0].signature
-        reference_signature_full_path = os.path.join(settings.MEDIA_ROOT, reference_signature_path.path)
+        reference_signature_full_path = os.path.join(settings.MEDIA_ROOT, current_user.e_signature.path)
 
         # Save the uploaded signature to a temporary file
         with tempfile.NamedTemporaryFile(delete=False) as temp_signature:
-            temp_signature.write(signature.read())
+            temp_signature.write(e_signature.read())
             uploaded_signature_path = temp_signature.name
 
         similarity = compare_images(image1_path=reference_signature_full_path, image2_path=uploaded_signature_path)
@@ -25,7 +24,7 @@ def feedback_create(*, current_user: Member, comment: str, signature):
         if similarity <= 80:
             raise PermissionDenied("Signature verification failed. You are not authorized to create feedback.")
 
-        Feedback.objects.create(author=current_user, comment=comment, signature=signature)
+        Feedback.objects.create(author=current_user, comment=comment, e_signature=e_signature)
 
         return "Signature verified successfully. Feedback has been created."
 
@@ -36,6 +35,7 @@ def feedback_create(*, current_user: Member, comment: str, signature):
         raise ValidationError(f"Validation error: {ve}")
 
     except Exception as e:
+        print(e)
         raise ValidationError(f"Unexpected error: {e}")
 
 

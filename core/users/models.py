@@ -56,6 +56,11 @@ class Member(BaseUser, AbstractUser, PermissionsMixin):
         unique=True,
         help_text=_("Enter the phone number of the employee."),
     )
+    e_signature = models.ImageField(
+        "E Signature",
+        upload_to="media/users/signature/",
+        help_text=_("Upload your signature."),
+    )
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
